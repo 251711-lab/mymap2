@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>장소 검색 지도</title>
+  <title>공연장 지도 | STAGE MAP</title>
 
   <style>
     /* 기본 페이지 설정 */
@@ -15,11 +15,11 @@
     body {
       margin: 0;
       font-family: Arial, "Noto Sans KR", sans-serif;
-      color: #222;
+      color: #242424;
       background: #f5f6f8;
     }
 
-    /* 화면을 왼쪽과 오른쪽으로 분할 */
+    /* 전체 화면을 왼쪽과 오른쪽으로 분할 */
     .container {
       display: flex;
       width: 100%;
@@ -30,7 +30,7 @@
 
     /* 왼쪽 검색 영역 */
     .sidebar {
-      width: 380px;
+      width: 390px;
       min-width: 320px;
       display: flex;
       flex-direction: column;
@@ -40,12 +40,13 @@
     }
 
     .header {
-      padding: 24px 20px 16px;
+      padding: 22px 20px 14px;
     }
 
     .header h1 {
-      margin: 0 0 8px;
-      font-size: 24px;
+      margin: 0 0 7px;
+      font-size: 25px;
+      letter-spacing: -1px;
     }
 
     .header p {
@@ -54,20 +55,61 @@
       font-size: 13px;
     }
 
-    /* 검색창과 버튼 */
+    /* 공연장 유형별 탭 */
+    .tabs {
+      display: flex;
+      gap: 7px;
+      padding: 0 16px 16px;
+    }
+
+    .tab {
+      flex: 1;
+      padding: 12px 4px;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      background: white;
+      color: #555;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: bold;
+    }
+
+    .tab.active {
+      color: white;
+      border-color: #222;
+      background: #222;
+    }
+
+    .tab .tab-icon {
+      display: block;
+      margin-bottom: 5px;
+      font-size: 20px;
+    }
+
+    /* 객석 수 기준 안내 */
+    .capacity-info {
+      margin: 0 16px 14px;
+      padding: 11px;
+      border-radius: 8px;
+      background: #f5f6f8;
+      color: #555;
+      font-size: 12px;
+      line-height: 1.7;
+    }
+
+    /* 검색창 */
     .search-form {
       display: flex;
-      gap: 8px;
-      padding: 0 20px 16px;
+      gap: 7px;
+      padding: 0 16px 14px;
     }
 
     .search-form input {
       flex: 1;
       min-width: 0;
-      padding: 12px;
+      padding: 11px;
       border: 1px solid #ddd;
       border-radius: 8px;
-      font-size: 14px;
       outline: none;
     }
 
@@ -76,25 +118,21 @@
     }
 
     .search-form button {
-      padding: 0 16px;
-      border: none;
+      padding: 0 14px;
+      border: 0;
       border-radius: 8px;
-      color: white;
       background: #3182f6;
-      cursor: pointer;
+      color: white;
       font-weight: bold;
+      cursor: pointer;
     }
 
-    .search-form button:hover {
-      background: #1765cc;
-    }
-
-    /* 검색 상태 안내 */
+    /* 검색 상태 */
     #status {
-      padding: 0 20px 12px;
+      padding: 0 18px 12px;
       color: #666;
-      font-size: 13px;
-      line-height: 1.5;
+      font-size: 12px;
+      line-height: 1.6;
     }
 
     /* 검색 결과 목록 */
@@ -105,80 +143,249 @@
     }
 
     .place-item {
-      padding: 16px 20px;
+      padding: 15px 17px;
       border-bottom: 1px solid #eee;
       cursor: pointer;
-      transition: background 0.15s;
     }
 
     .place-item:hover {
-      background: #f3f7ff;
+      background: #f6f8fc;
+    }
+
+    .place-title {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+    }
+
+    /* 공연장 유형별 목록 아이콘 */
+    .place-icon {
+      flex-shrink: 0;
+      display: grid;
+      place-items: center;
+      width: 42px;
+      height: 42px;
+      border-radius: 12px;
+      font-size: 23px;
+    }
+
+    .small-icon {
+      background: #fff0e8;
+    }
+
+    .medium-icon {
+      background: #e9f1ff;
+    }
+
+    .large-icon {
+      background: #eee9ff;
     }
 
     .place-item h3 {
-      margin: 0 0 8px;
-      font-size: 16px;
+      margin: 1px 0 6px;
+      font-size: 15px;
+      line-height: 1.4;
     }
 
     .place-item p {
-      margin: 4px 0;
-      color: #666;
-      font-size: 13px;
+      margin: 5px 0 0;
+      color: #777;
+      font-size: 12px;
       line-height: 1.5;
+      overflow-wrap: anywhere;
     }
 
-    .place-item a {
+    .capacity-badge {
       display: inline-block;
-      margin-top: 8px;
-      color: #3182f6;
-      font-size: 13px;
+      margin-top: 5px;
+      padding: 4px 7px;
+      border-radius: 5px;
+      background: #f1f2f4;
+      color: #555;
+      font-size: 11px;
+    }
+
+    .place-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+      margin-top: 12px;
+    }
+
+    .place-actions a {
+      padding: 7px 9px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      color: #444;
+      font-size: 11px;
       text-decoration: none;
     }
 
+    .place-actions a:hover {
+      background: #eee;
+    }
+
     /* 오른쪽 지도 영역 */
-    #map {
+    .map-area {
+      position: relative;
       flex: 1;
       min-width: 0;
       height: 100%;
-      background: #e8edf2;
+    }
+
+    #map {
+      width: 100%;
+      height: 100%;
+    }
+
+    /* 지도 위 기능 버튼 */
+    .map-controls {
+      position: absolute;
+      top: 14px;
+      right: 14px;
+      z-index: 5;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 7px;
+      max-width: calc(100% - 28px);
+    }
+
+    .map-controls button {
+      padding: 10px 12px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      background: white;
+      color: #333;
+      cursor: pointer;
+      box-shadow: 0 2px 7px #00000012;
+      font-size: 12px;
+      font-weight: bold;
+    }
+
+    .map-controls button:hover {
+      background: #f1f4f9;
+    }
+
+    /* 로드뷰 표시 영역 */
+    #roadviewPanel {
+      display: none;
+      position: absolute;
+      inset: 0;
+      z-index: 8;
+      background: white;
+    }
+
+    #roadview {
+      width: 100%;
+      height: 100%;
+    }
+
+    #closeRoadview {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      z-index: 9;
+      padding: 11px 14px;
+      border: 0;
+      border-radius: 8px;
+      background: white;
+      box-shadow: 0 2px 8px #00000030;
+      cursor: pointer;
     }
 
     /* 화면이 좁을 때 레이아웃 조정 */
     @media (max-width: 650px) {
       .sidebar {
-        width: 45%;
-        min-width: 180px;
+        width: 46%;
+        min-width: 175px;
       }
 
       .header {
-        padding: 16px 12px;
+        padding: 15px 10px;
       }
 
       .header h1 {
         font-size: 19px;
       }
 
+      .header p {
+        font-size: 11px;
+      }
+
+      .tabs {
+        gap: 4px;
+        padding: 0 7px 12px;
+      }
+
+      .tab {
+        padding: 10px 2px;
+        font-size: 11px;
+      }
+
+      .capacity-info {
+        margin: 0 7px 10px;
+        padding: 8px;
+        font-size: 10px;
+      }
+
       .search-form {
-        padding: 0 10px 12px;
-        gap: 5px;
+        gap: 4px;
+        padding: 0 7px 10px;
       }
 
       .search-form input {
-        padding: 10px 6px;
-        font-size: 12px;
+        width: 0;
+        padding: 9px 5px;
+        font-size: 11px;
       }
 
       .search-form button {
-        padding: 0 9px;
-        font-size: 12px;
+        padding: 0 8px;
+        font-size: 11px;
       }
 
       #status {
-        padding: 0 10px 10px;
+        padding: 0 9px 10px;
+        font-size: 10px;
       }
 
       .place-item {
-        padding: 12px 10px;
+        padding: 12px 9px;
+      }
+
+      .place-icon {
+        width: 32px;
+        height: 32px;
+        font-size: 18px;
+      }
+
+      .place-item h3 {
+        font-size: 12px;
+      }
+
+      .place-item p {
+        font-size: 10px;
+      }
+
+      .place-actions {
+        gap: 4px;
+      }
+
+      .place-actions a {
+        padding: 6px;
+        font-size: 10px;
+      }
+
+      .map-controls {
+        top: 8px;
+        right: 8px;
+        gap: 4px;
+      }
+
+      .map-controls button {
+        padding: 8px;
+        font-size: 10px;
       }
     }
   </style>
@@ -187,186 +394,151 @@
 <body>
   <div class="container">
 
-    <!-- 왼쪽 검색창과 결과 목록 -->
+    <!-- 왼쪽 공연장 검색 영역 -->
     <aside class="sidebar">
-      <div class="header">
-        <h1>장소 찾기</h1>
-        <p>원하는 장소를 검색해 보세요.</p>
+
+      <header class="header">
+        <h1>🎭 STAGE MAP</h1>
+        <p>내 주변 공연장을 찾아보세요.</p>
+      </header>
+
+      <!-- 공연장 유형 선택 탭 -->
+      <div class="tabs">
+        <button class="tab active" data-type="small">
+          <span class="tab-icon">🎪</span>
+          소극장
+        </button>
+
+        <button class="tab" data-type="medium">
+          <span class="tab-icon">🎭</span>
+          중극장
+        </button>
+
+        <button class="tab" data-type="large">
+          <span class="tab-icon">🏛️</span>
+          대극장
+        </button>
       </div>
 
+      <!-- 객석 수 분류 기준 -->
+      <div class="capacity-info">
+        <strong>공연장 분류 기준</strong><br>
+        🎪 소극장: 400석 미만<br>
+        🎭 중극장: 400석 이상 ~ 1,000석 미만<br>
+        🏛️ 대극장: 1,000석 이상<br>
+        <span>※ 객석 수가 확인된 공연장만 정확하게 분류할 수 있습니다.</span>
+      </div>
+
+      <!-- 추가 키워드 검색 -->
       <form class="search-form" id="searchForm">
         <input
           type="text"
           id="searchInput"
-          placeholder="장소 또는 키워드 입력"
-          aria-label="검색할 장소"
-          required
+          placeholder="지역 또는 공연장 검색"
+          aria-label="검색할 지역 또는 공연장"
         >
-        <button type="submit" id="searchButton">검색</button>
+        <button type="submit">검색</button>
       </form>
 
+      <!-- 검색 상태 안내 -->
       <div id="status" role="status" aria-live="polite">
         지도를 불러오는 중입니다.
       </div>
 
+      <!-- 공연장 검색 결과 -->
       <div id="resultList"></div>
     </aside>
 
-    <!-- 오른쪽 지도 -->
-    <main id="map" aria-label="장소 검색 지도"></main>
+    <!-- 오른쪽 지도 영역 -->
+    <main class="map-area">
+      <div id="map" aria-label="공연장 지도"></div>
 
+      <!-- 지도 조작 버튼 -->
+      <div class="map-controls">
+        <button id="myLocationButton">📍 내 위치</button>
+        <button id="roadviewButton">🌐 로드뷰</button>
+      </div>
+
+      <!-- 로드뷰 표시 영역 -->
+      <div id="roadviewPanel">
+        <div id="roadview"></div>
+        <button id="closeRoadview">✕ 지도 돌아가기</button>
+      </div>
+    </main>
   </div>
 
-  <!-- 카카오 지도 SDK와 장소 검색 라이브러리 -->
-  <script
-    src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=11a56469b67306e63016649e688605c8&libraries=services&autoload=false"
-    onerror="document.getElementById('status').textContent='지도 SDK를 불러오지 못했습니다. API 키와 네트워크를 확인하세요.'"
-  ></script>
+  <!-- 카카오 지도 SDK -->
+  <script src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=11a56469b67306e63016649e688605c8&libraries=services,roadview&autoload=false"></script>
 
   <script>
     // 지도와 검색에 필요한 변수
     let map = null;
     let places = null;
+    let currentPosition = null;
     let currentMarker = null;
     let searchMarkers = [];
     let infoWindow = null;
-    let currentPosition = null;
+    let roadview = null;
+    let roadviewClient = null;
+    let activeType = "small";
+    let searchKeyword = "";
+    let searchVersion = 0;
+    let selectedPlace = null;
     let mapReady = false;
 
-    // HTML 요소를 가져옵니다.
+    // 화면 요소를 가져옵니다.
+    const statusElement = document.getElementById("status");
+    const resultList = document.getElementById("resultList");
     const searchForm = document.getElementById("searchForm");
     const searchInput = document.getElementById("searchInput");
-    const searchButton = document.getElementById("searchButton");
-    const resultList = document.getElementById("resultList");
-    const statusElement = document.getElementById("status");
+    const tabs = document.querySelectorAll(".tab");
+    const roadviewPanel = document.getElementById("roadviewPanel");
 
-    // 상태 메시지를 변경합니다.
+    // 유형별 표시 정보
+    const theaterTypes = {
+      small: {
+        label: "소극장",
+        icon: "🎪",
+        markerColor: "#e87532",
+        listClass: "small-icon",
+        minimum: 0,
+        maximum: 400
+      },
+      medium: {
+        label: "중극장",
+        icon: "🎭",
+        markerColor: "#377de8",
+        listClass: "medium-icon",
+        minimum: 400,
+        maximum: 1000
+      },
+      large: {
+        label: "대극장",
+        icon: "🏛️",
+        markerColor: "#8058cf",
+        listClass: "large-icon",
+        minimum: 1000,
+        maximum: Infinity
+      }
+    };
+
+    // 객석 수가 확인된 공연장을 등록하는 곳입니다.
+    // 실제 검색 결과에 나타나는 장소 이름과 객석 수를 입력하세요.
+    // 객석 수를 모르는 장소는 임의로 등록하지 않습니다.
+    const theaterCapacity = {
+      // "실제 공연장 이름": 350,
+      // "실제 공연장 이름": 650,
+      // "실제 공연장 이름": 1200
+    };
+
+    // 상태 메시지를 표시합니다.
     function setStatus(message) {
       statusElement.textContent = message;
     }
 
-    // 지도 SDK가 준비된 후에 지도 초기화를 시작합니다.
-    function initializeMap() {
-      const defaultPosition = new kakao.maps.LatLng(
-        37.566826,
-        126.9786567
-      );
-
-      // 지도를 생성하고 확대 레벨을 5로 설정합니다.
-      map = new kakao.maps.Map(
-        document.getElementById("map"),
-        {
-          center: defaultPosition,
-          level: 5
-        }
-      );
-
-      // 장소 검색 객체와 정보 창을 생성합니다.
-      places = new kakao.maps.services.Places(map);
-      infoWindow = new kakao.maps.InfoWindow({
-        zIndex: 10
-      });
-
-      // 지도 생성 이후 현재 위치를 확인합니다.
-      mapReady = true;
-      setStatus("현재 위치를 확인하고 있습니다.");
-
-      requestCurrentLocation();
-    }
-
-    // 브라우저에 현재 위치 권한을 요청합니다.
-    function requestCurrentLocation() {
-      if (!navigator.geolocation) {
-        setStatus("이 브라우저에서는 위치 정보를 사용할 수 없습니다.");
-        return;
-      }
-
-      navigator.geolocation.getCurrentPosition(
-        function (position) {
-          // 현재 위치의 위도와 경도를 가져옵니다.
-          const latitude = position.coords.latitude;
-          const longitude = position.coords.longitude;
-
-          currentPosition = new kakao.maps.LatLng(
-            latitude,
-            longitude
-          );
-
-          // 현재 위치로 지도를 이동합니다.
-          map.setCenter(currentPosition);
-
-          // 현재 위치 마커를 생성합니다.
-          currentMarker = new kakao.maps.Marker({
-            map: map,
-            position: currentPosition,
-            title: "내 현재 위치"
-          });
-
-          setStatus("현재 위치를 표시했습니다. 장소를 검색해 보세요.");
-        },
-        function (error) {
-          // 위치 정보를 가져오지 못한 경우 기본 위치를 유지합니다.
-          const messages = {
-            1: "위치 권한이 거부되었습니다. 브라우저 설정에서 허용할 수 있습니다.",
-            2: "현재 위치를 확인할 수 없습니다. 기본 위치에서 시작합니다.",
-            3: "위치 확인 시간이 초과되었습니다. 기본 위치에서 시작합니다."
-          };
-
-          setStatus(
-            messages[error.code] ||
-            "위치를 확인하지 못했습니다. 기본 위치에서 시작합니다."
-          );
-        },
-        {
-          enableHighAccuracy: true,
-          timeout: 10000,
-          maximumAge: 60000
-        }
-      );
-    }
-
-    // 이전 검색 마커를 지도에서 제거합니다.
-    function clearSearchMarkers() {
-      searchMarkers.forEach(function (marker) {
-        marker.setMap(null);
-      });
-
-      searchMarkers = [];
-      infoWindow.close();
-    }
-
-    // 검색 결과에 해당하는 마커를 생성합니다.
-    function displayMarker(place) {
-      const position = new kakao.maps.LatLng(
-        Number(place.y),
-        Number(place.x)
-      );
-
-      const marker = new kakao.maps.Marker({
-        map: map,
-        position: position,
-        title: place.place_name
-      });
-
-      searchMarkers.push(marker);
-
-      // 마커를 클릭하면 장소 이름을 표시합니다.
-      kakao.maps.event.addListener(marker, "click", function () {
-        infoWindow.setContent(
-          '<div style="padding:10px;font-size:13px;">' +
-          escapeHTML(place.place_name) +
-          "</div>"
-        );
-
-        infoWindow.open(map, marker);
-      });
-
-      return marker;
-    }
-
     // HTML에 표시할 문자열의 특수문자를 처리합니다.
     function escapeHTML(value) {
-      return String(value).replace(/[&<>"']/g, function (character) {
+      return String(value ?? "").replace(/[&<>"']/g, function (character) {
         const entities = {
           "&": "&amp;",
           "<": "&lt;",
@@ -379,19 +551,419 @@
       });
     }
 
-    // 검색 결과 목록을 화면에 표시합니다.
+    // 좌표로 장소 정보를 확인할 때 사용할 객체를 생성합니다.
+    function getPlacePosition(place) {
+      return new kakao.maps.LatLng(
+        Number(place.y),
+        Number(place.x)
+      );
+    }
+
+    // 현재 검색 결과의 마커와 정보 창을 제거합니다.
+    function clearSearchMarkers() {
+      searchMarkers.forEach(function (marker) {
+        marker.setMap(null);
+      });
+
+      searchMarkers = [];
+
+      if (infoWindow) {
+        infoWindow.close();
+      }
+
+      selectedPlace = null;
+    }
+
+    // 현재 위치 마커를 생성하거나 위치를 갱신합니다.
+    function updateCurrentMarker(position) {
+      if (currentMarker) {
+        currentMarker.setPosition(position);
+        currentMarker.setMap(map);
+        return;
+      }
+
+      currentMarker = new kakao.maps.Marker({
+        map: map,
+        position: position,
+        title: "내 현재 위치"
+      });
+
+      // 현재 위치 마커를 클릭하면 안내 창을 표시합니다.
+      kakao.maps.event.addListener(currentMarker, "click", function () {
+        infoWindow.setContent(
+          '<div style="padding:10px;font-size:13px;">📍 내 현재 위치</div>'
+        );
+
+        infoWindow.open(map, currentMarker);
+      });
+    }
+
+    // 브라우저에 현재 위치 권한을 요청합니다.
+    function requestCurrentLocation(moveMap) {
+      if (!navigator.geolocation) {
+        setStatus("현재 위치를 지원하지 않는 브라우저입니다.");
+        return;
+      }
+
+      setStatus("현재 위치를 확인하고 있습니다.");
+
+      navigator.geolocation.getCurrentPosition(
+        function (position) {
+          currentPosition = new kakao.maps.LatLng(
+            position.coords.latitude,
+            position.coords.longitude
+          );
+
+          updateCurrentMarker(currentPosition);
+
+          if (moveMap) {
+            map.setCenter(currentPosition);
+            map.setLevel(5);
+          }
+
+          setStatus("현재 위치를 확인했습니다.");
+
+          // 위치를 확인한 후 선택된 공연장 유형을 검색합니다.
+          runTheaterSearch();
+        },
+        function (error) {
+          const messages = {
+            1: "위치 권한이 거부되었습니다. 브라우저 설정을 확인하세요.",
+            2: "현재 위치를 확인할 수 없습니다.",
+            3: "위치 확인 시간이 초과되었습니다."
+          };
+
+          setStatus(
+            (messages[error.code] || "현재 위치 확인에 실패했습니다.") +
+            " 기본 위치에서 검색합니다."
+          );
+
+          // 위치 권한이 없어도 지도 중심에서 검색을 진행합니다.
+          runTheaterSearch();
+        },
+        {
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 60000
+        }
+      );
+    }
+
+    // 유형별로 검색할 키워드를 구성합니다.
+    function getSearchKeywords() {
+      const keywords = [
+        "공연장",
+        "극장",
+        "문화예술회관",
+        "공연예술센터"
+      ];
+
+      if (activeType === "small") {
+        keywords.push("소극장");
+      } else if (activeType === "medium") {
+        keywords.push("중극장");
+      } else {
+        keywords.push("대극장");
+      }
+
+      // 사용자가 검색어를 입력하면 지역 또는 이름을 추가합니다.
+      if (searchKeyword.trim()) {
+        return [
+          searchKeyword.trim() + " 공연장",
+          searchKeyword.trim() + " 극장"
+        ];
+      }
+
+      return keywords;
+    }
+
+    // 공연장 객석 수를 기준으로 유형을 판별합니다.
+    function classifyTheater(place) {
+      const capacity = theaterCapacity[place.place_name];
+
+      // 객석 수가 등록되어 있지 않으면 유형을 확정하지 않습니다.
+      if (!Number.isFinite(capacity) || capacity < 0) {
+        return null;
+      }
+
+      if (capacity < 400) {
+        return "small";
+      }
+
+      if (capacity < 1000) {
+        return "medium";
+      }
+
+      return "large";
+    }
+
+    // 검색 결과를 여러 키워드로 가져와 중복을 제거합니다.
+    function runTheaterSearch() {
+      if (!mapReady || !places) {
+        return;
+      }
+
+      const thisSearchVersion = ++searchVersion;
+      const keywords = getSearchKeywords();
+      const position = currentPosition || map.getCenter();
+
+      clearSearchMarkers();
+      resultList.replaceChildren();
+
+      setStatus("주변 공연장을 검색하고 있습니다.");
+
+      const foundPlaces = new Map();
+      let completedSearches = 0;
+
+      // 이전 검색 결과가 늦게 도착해 새 결과를 덮어쓰지 않도록 합니다.
+      keywords.forEach(function (keyword) {
+        places.keywordSearch(
+          keyword,
+          function (data, status) {
+            if (thisSearchVersion !== searchVersion) {
+              return;
+            }
+
+            if (status === kakao.maps.services.Status.OK) {
+              data.forEach(function (place) {
+                foundPlaces.set(place.id, place);
+              });
+            }
+
+            completedSearches++;
+
+            if (completedSearches === keywords.length) {
+              finishTheaterSearch(
+                Array.from(foundPlaces.values()),
+                thisSearchVersion
+              );
+            }
+          },
+          {
+            location: position,
+            radius: 20000,
+            sort: kakao.maps.services.SortBy.DISTANCE,
+            size: 15
+          }
+        );
+      });
+    }
+
+    // 검색 결과 중 선택한 유형에 해당하는 공연장을 표시합니다.
+    function finishTheaterSearch(data, version) {
+      if (version !== searchVersion) {
+        return;
+      }
+
+      // 객석 수가 확인된 공연장만 유형별 결과로 분류합니다.
+      const filteredPlaces = data.filter(function (place) {
+        return classifyTheater(place) === activeType;
+      });
+
+      // 가까운 장소부터 표시합니다.
+      const origin = currentPosition || map.getCenter();
+
+      filteredPlaces.sort(function (a, b) {
+        const distanceA = getDistance(origin, getPlacePosition(a));
+        const distanceB = getDistance(origin, getPlacePosition(b));
+
+        return distanceA - distanceB;
+      });
+
+      if (filteredPlaces.length === 0) {
+        resultList.innerHTML =
+          '<div style="padding:20px;font-size:13px;line-height:1.8;color:#666;">' +
+          '<strong>분류 기준에 맞는 공연장을 찾지 못했습니다.</strong><br>' +
+          '주변 검색 결과에 객석 수 정보가 없거나, 해당 유형의 공연장이 검색되지 않았을 수 있습니다.<br><br>' +
+          '코드의 theaterCapacity 객체에 공연장 이름과 실제 객석 수를 등록하면 해당 유형에 표시됩니다.' +
+          '</div>';
+
+        setStatus(
+          "검색 결과 " + data.length +
+          "개 중 객석 수 기준이 확인된 " +
+          theaterTypes[activeType].label + "이 없습니다."
+        );
+
+        return;
+      }
+
+      const bounds = new kakao.maps.LatLngBounds();
+
+      filteredPlaces.forEach(function (place) {
+        const marker = displayMarker(place);
+        bounds.extend(marker.getPosition());
+      });
+
+      displayPlaces(filteredPlaces);
+      map.setBounds(bounds);
+
+      // 현재 위치 마커도 검색 후 계속 표시합니다.
+      if (currentMarker) {
+        currentMarker.setMap(map);
+      }
+
+      setStatus(
+        theaterTypes[activeType].label + " " +
+        filteredPlaces.length + "곳을 찾았습니다."
+      );
+    }
+
+    // 두 좌표 사이의 직선거리를 미터 단위로 계산합니다.
+    function getDistance(positionA, positionB) {
+      const latitudeA = positionA.getLat();
+      const longitudeA = positionA.getLng();
+      const latitudeB = positionB.getLat();
+      const longitudeB = positionB.getLng();
+
+      const earthRadius = 6371000;
+      const toRadians = function (degree) {
+        return degree * Math.PI / 180;
+      };
+
+      const deltaLatitude = toRadians(latitudeB - latitudeA);
+      const deltaLongitude = toRadians(longitudeB - longitudeA);
+
+      const value =
+        Math.sin(deltaLatitude / 2) ** 2 +
+        Math.cos(toRadians(latitudeA)) *
+        Math.cos(toRadians(latitudeB)) *
+        Math.sin(deltaLongitude / 2) ** 2;
+
+      return earthRadius * 2 * Math.atan2(
+        Math.sqrt(value),
+        Math.sqrt(1 - value)
+      );
+    }
+
+    // 유형별 디자인이 적용된 지도 마커를 생성합니다.
+    function displayMarker(place) {
+      const type = classifyTheater(place);
+      const typeInfo = theaterTypes[type];
+
+      const markerContent =
+        '<div style="' +
+        'width:36px;height:36px;border-radius:50%;' +
+        'background:' + typeInfo.markerColor + ';' +
+        'border:3px solid white;' +
+        'box-shadow:0 2px 7px #0004;' +
+        'display:flex;align-items:center;justify-content:center;' +
+        'font-size:18px;cursor:pointer;' +
+        '">' + typeInfo.icon + '</div>';
+
+      // 유형마다 다른 아이콘과 색상을 적용합니다.
+      const customOverlay = new kakao.maps.CustomOverlay({
+        position: getPlacePosition(place),
+        content: markerContent,
+        yAnchor: 1,
+        zIndex: 3
+      });
+
+      customOverlay.setMap(map);
+
+      // 기존 마커 제거 기능과 호환되도록 객체를 목록에 보관합니다.
+      searchMarkers.push({
+        setMap: function (targetMap) {
+          customOverlay.setMap(targetMap);
+        },
+        getPosition: function () {
+          return customOverlay.getPosition();
+        }
+      });
+
+      // 마커 위치에 정보 창을 열기 위한 투명한 클릭 영역을 만듭니다.
+      const marker = new kakao.maps.Marker({
+        map: map,
+        position: getPlacePosition(place),
+        opacity: 0,
+        clickable: true,
+        title: place.place_name,
+        zIndex: 4
+      });
+
+      searchMarkers.push(marker);
+
+      kakao.maps.event.addListener(marker, "click", function () {
+        showPlaceInfo(place, marker);
+      });
+
+      return marker;
+    }
+
+    // 장소 이름, 주소, 객석 수와 이동 기능을 정보 창에 표시합니다.
+    function showPlaceInfo(place, marker) {
+      selectedPlace = place;
+
+      const capacity = theaterCapacity[place.place_name];
+      const typeInfo = theaterTypes[classifyTheater(place)];
+
+      const address =
+        place.road_address_name ||
+        place.address_name ||
+        "주소 정보 없음";
+
+      const position = getPlacePosition(place);
+
+      // 카카오맵에서 길찾기와 로드뷰를 열 수 있는 주소를 만듭니다.
+      const encodedName = encodeURIComponent(place.place_name);
+      const routeUrl =
+        "https://map.kakao.com/link/to/" +
+        encodedName + "," + place.y + "," + place.x;
+
+      const roadviewUrl =
+        "https://map.kakao.com/link/roadview/" +
+        place.y + "," + place.x;
+
+      const mapUrl =
+        place.place_url ||
+        "https://map.kakao.com/link/map/" +
+        encodedName + "," + place.y + "," + place.x;
+
+      infoWindow.setContent(
+        '<div style="padding:13px;width:240px;font-size:12px;line-height:1.7;">' +
+          '<strong style="font-size:15px;">' +
+            typeInfo.icon + " " + escapeHTML(place.place_name) +
+          '</strong>' +
+          '<div style="margin-top:6px;color:#555;">' +
+            escapeHTML(address) +
+          '</div>' +
+          '<div style="margin-top:4px;">객석 수: ' +
+            capacity + '석</div>' +
+          '<div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;">' +
+            '<a href="' + routeUrl + '" target="_blank" rel="noopener noreferrer">길찾기</a>' +
+            '<a href="' + roadviewUrl + '" target="_blank" rel="noopener noreferrer">로드뷰</a>' +
+            '<a href="' + mapUrl + '" target="_blank" rel="noopener noreferrer">상세 지도</a>' +
+          '</div>' +
+        '</div>'
+      );
+
+      infoWindow.open(map, marker);
+      map.panTo(position);
+    }
+
+    // 검색 결과 목록을 생성합니다.
     function displayPlaces(data) {
       resultList.replaceChildren();
 
       data.forEach(function (place, index) {
+        const typeInfo = theaterTypes[classifyTheater(place)];
+        const capacity = theaterCapacity[place.place_name];
+
         const item = document.createElement("article");
         item.className = "place-item";
 
+        const titleArea = document.createElement("div");
+        titleArea.className = "place-title";
+
+        const icon = document.createElement("div");
+        icon.className = "place-icon " + typeInfo.listClass;
+        icon.textContent = typeInfo.icon;
+
+        const details = document.createElement("div");
+        details.style.flex = "1";
+        details.style.minWidth = "0";
+
         const name = document.createElement("h3");
         name.textContent = (index + 1) + ". " + place.place_name;
-
-        const category = document.createElement("p");
-        category.textContent = place.category_name || "분류 정보 없음";
 
         const address = document.createElement("p");
         address.textContent =
@@ -399,129 +971,200 @@
           place.address_name ||
           "주소 정보 없음";
 
-        const phone = document.createElement("p");
-        phone.textContent = place.phone || "전화번호 정보 없음";
+        const capacityBadge = document.createElement("span");
+        capacityBadge.className = "capacity-badge";
+        capacityBadge.textContent = capacity + "석 · " + typeInfo.label;
 
-        const link = document.createElement("a");
-        link.textContent = "카카오맵에서 보기";
-        link.href = place.place_url;
-        link.target = "_blank";
-        link.rel = "noopener noreferrer";
+        details.append(name, address, capacityBadge);
+        titleArea.append(icon, details);
 
-        // 링크 클릭은 지도 이동 이벤트로 이어지지 않도록 처리합니다.
-        link.addEventListener("click", function (event) {
-          event.stopPropagation();
+        // 장소별 이동 및 상세 정보 링크를 생성합니다.
+        const actions = document.createElement("div");
+        actions.className = "place-actions";
+
+        const routeLink = document.createElement("a");
+        routeLink.href =
+          "https://map.kakao.com/link/to/" +
+          encodeURIComponent(place.place_name) + "," +
+          place.y + "," + place.x;
+        routeLink.target = "_blank";
+        routeLink.rel = "noopener noreferrer";
+        routeLink.textContent = "🚗 길찾기";
+
+        const roadviewLink = document.createElement("a");
+        roadviewLink.href =
+          "https://map.kakao.com/link/roadview/" +
+          place.y + "," + place.x;
+        roadviewLink.target = "_blank";
+        roadviewLink.rel = "noopener noreferrer";
+        roadviewLink.textContent = "🌐 로드뷰";
+
+        const detailLink = document.createElement("a");
+        detailLink.href = place.place_url;
+        detailLink.target = "_blank";
+        detailLink.rel = "noopener noreferrer";
+        detailLink.textContent = "상세 정보";
+
+        // 링크 클릭이 장소 선택 이벤트로 이어지지 않도록 합니다.
+        [routeLink, roadviewLink, detailLink].forEach(function (link) {
+          link.addEventListener("click", function (event) {
+            event.stopPropagation();
+          });
         });
 
-        // 각 결과를 클릭하면 지도 중심을 해당 장소로 이동합니다.
+        actions.append(routeLink, roadviewLink, detailLink);
+        item.append(titleArea, actions);
+
+        // 목록을 클릭하면 해당 장소로 지도를 이동합니다.
         item.addEventListener("click", function () {
-          const position = new kakao.maps.LatLng(
-            Number(place.y),
-            Number(place.x)
-          );
+          const marker = searchMarkers.find(function (savedMarker) {
+            if (!savedMarker.getPosition) {
+              return false;
+            }
 
-          map.panTo(position);
+            const position = savedMarker.getPosition();
 
-          // 기존 정보 창을 닫고 선택한 장소의 정보를 표시합니다.
-          infoWindow.close();
-          infoWindow.setContent(
-            '<div style="padding:10px;font-size:13px;">' +
-            escapeHTML(place.place_name) +
-            "</div>"
-          );
-          infoWindow.open(map, searchMarkers[index]);
+            return (
+              Math.abs(position.getLat() - Number(place.y)) < 0.000001 &&
+              Math.abs(position.getLng() - Number(place.x)) < 0.000001
+            );
+          });
+
+          map.panTo(getPlacePosition(place));
+
+          if (marker) {
+            showPlaceInfo(place, marker);
+          }
         });
 
-        item.append(name, category, address, phone, link);
         resultList.appendChild(item);
       });
     }
 
-    // 입력한 키워드로 장소를 검색합니다.
-    function searchPlaces(keyword) {
-      if (!mapReady || !places) {
-        setStatus("지도가 준비될 때까지 기다려 주세요.");
-        return;
-      }
+    // 공연장 유형 탭을 전환합니다.
+    tabs.forEach(function (tab) {
+      tab.addEventListener("click", function () {
+        activeType = tab.dataset.type;
 
-      const query = keyword.trim();
+        tabs.forEach(function (otherTab) {
+          otherTab.classList.toggle(
+            "active",
+            otherTab === tab
+          );
+        });
 
-      if (!query) {
-        setStatus("검색할 장소를 입력해 주세요.");
-        return;
-      }
+        // 이전 유형의 마커와 목록을 지운 뒤 다시 검색합니다.
+        clearSearchMarkers();
+        resultList.replaceChildren();
 
-      searchButton.disabled = true;
-      setStatus("장소를 검색하고 있습니다.");
-      resultList.replaceChildren();
-      clearSearchMarkers();
-
-      // 장소 검색 결과를 받습니다.
-      places.keywordSearch(
-        query,
-        function (data, status) {
-          searchButton.disabled = false;
-
-          if (status === kakao.maps.services.Status.OK) {
-            // 검색된 장소에 마커를 표시합니다.
-            const bounds = new kakao.maps.LatLngBounds();
-
-            data.forEach(function (place) {
-              displayMarker(place);
-
-              bounds.extend(
-                new kakao.maps.LatLng(
-                  Number(place.y),
-                  Number(place.x)
-                )
-              );
-            });
-
-            // 검색 결과 목록을 표시합니다.
-            displayPlaces(data);
-
-            // 검색 결과가 모두 보이도록 지도 범위를 조정합니다.
-            if (data.length > 0) {
-              map.setBounds(bounds);
-            }
-
-            setStatus("검색 결과 " + data.length + "개를 찾았습니다.");
-          } else if (
-            status === kakao.maps.services.Status.ZERO_RESULT
-          ) {
-            setStatus("검색 결과가 없습니다. 다른 키워드를 입력해 보세요.");
-          } else {
-            setStatus("검색 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.");
-          }
-        },
-        {
-          // 현재 위치가 있으면 가까운 장소를 우선 검색합니다.
-          location: currentPosition || map.getCenter(),
-          sort: kakao.maps.services.SortBy.DISTANCE,
-          size: 15
-        }
-      );
-    }
-
-    // 검색 버튼을 누르거나 Enter를 입력하면 검색합니다.
-    searchForm.addEventListener("submit", function (event) {
-      event.preventDefault();
-      searchPlaces(searchInput.value);
+        runTheaterSearch();
+      });
     });
 
+    // 검색창에 입력한 지역 또는 공연장 이름을 검색합니다.
+    searchForm.addEventListener("submit", function (event) {
+      event.preventDefault();
+
+      searchKeyword = searchInput.value.trim();
+
+      if (!searchKeyword) {
+        setStatus("검색할 지역 또는 공연장 이름을 입력하세요.");
+        return;
+      }
+
+      runTheaterSearch();
+    });
+
+    // 내 위치 버튼을 누르면 현재 위치로 지도를 이동합니다.
+    document.getElementById("myLocationButton")
+      .addEventListener("click", function () {
+        requestCurrentLocation(true);
+      });
+
+    // 로드뷰를 현재 선택한 공연장 또는 지도 중심에 표시합니다.
+    document.getElementById("roadviewButton")
+      .addEventListener("click", function () {
+        if (!roadview || !roadviewClient) {
+          setStatus("로드뷰를 초기화하지 못했습니다.");
+          return;
+        }
+
+        const position = selectedPlace
+          ? getPlacePosition(selectedPlace)
+          : map.getCenter();
+
+        roadviewClient.getNearestPanoId(
+          position,
+          100,
+          function (panoId) {
+            if (!panoId) {
+              setStatus("이 위치에는 이용 가능한 로드뷰가 없습니다.");
+              return;
+            }
+
+            roadviewPanel.style.display = "block";
+            roadview.setPanoId(panoId, position);
+          }
+        );
+      });
+
+    // 로드뷰를 닫고 지도로 돌아갑니다.
+    document.getElementById("closeRoadview")
+      .addEventListener("click", function () {
+        roadviewPanel.style.display = "none";
+      });
+
+    // 카카오 지도 SDK가 준비되면 지도를 초기화합니다.
+    function initializeMap() {
+      const defaultPosition = new kakao.maps.LatLng(
+        37.566826,
+        126.9786567
+      );
+
+      map = new kakao.maps.Map(
+        document.getElementById("map"),
+        {
+          center: defaultPosition,
+          level: 5
+        }
+      );
+
+      // 장소 검색 및 정보 창을 생성합니다.
+      places = new kakao.maps.services.Places(map);
+
+      infoWindow = new kakao.maps.InfoWindow({
+        zIndex: 10
+      });
+
+      // 로드뷰 객체를 생성합니다.
+      roadview = new kakao.maps.Roadview(
+        document.getElementById("roadview")
+      );
+
+      roadviewClient = new kakao.maps.RoadviewClient();
+
+      mapReady = true;
+
+      // 현재 위치를 요청하고 공연장 검색을 시작합니다.
+      requestCurrentLocation(false);
+    }
+
     // SDK가 로드된 후 지도 초기화를 실행합니다.
-    // autoload=false를 사용했으므로 kakao.maps.load()가 필요합니다.
     if (window.kakao && window.kakao.maps) {
       kakao.maps.load(function () {
         try {
           initializeMap();
         } catch (error) {
           console.error("지도 초기화 오류:", error);
-          setStatus("지도를 초기화하지 못했습니다. API 설정을 확인하세요.");
+          setStatus(
+            "지도를 초기화하지 못했습니다. 카카오 API 키와 설정을 확인하세요."
+          );
         }
       });
     } else {
-      setStatus("카카오 지도 SDK를 불러오지 못했습니다. API 키와 네트워크를 확인하세요.");
+      setStatus(
+        "카카오 지도 SDK를 불러오지 못했습니다. API 키와 네트워크를 확인하세요."
+      );
     }
   </script>
 </body>
